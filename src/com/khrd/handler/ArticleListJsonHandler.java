@@ -2,6 +2,7 @@ package com.khrd.handler;
 
 import java.io.PrintWriter;
 import java.sql.Connection;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,36 +15,31 @@ import com.khrd.dto.Article;
 import com.khrd.jdbc.ConnectionProvider;
 import com.khrd.jdbc.JDBCUtil;
 
-//json data를 만들어서 돌려주는 핸들러
-public class ArticleReadJsonHandler implements CommandHandler {
+public class ArticleListJsonHandler implements CommandHandler {
 
 	@Override
 	public String process(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		//게시물 번호
-		String sNo = request.getParameter("no");
-		int no = Integer.parseInt(sNo);
-		
-		//db로 부터 no데이타 가져오기
 		Connection conn = null;
 		try {
 			conn = ConnectionProvider.getConnection();
 			ArticleDAO dao = ArticleDAO.getInstance();
-			Article article = dao.selectByNo(conn, no);
+			List<Article> list = dao.selectArticleList(conn);
 			
-			//article -> json string
+			//object - > json string
 			ObjectMapper om = new ObjectMapper();
-			String jsonData = om.writeValueAsString(article);
-			System.out.println(jsonData);
+			String json = om.writeValueAsString(list);
 			
-			response.setContentType("application/json;charset=UTF-8");
+			//브라우저로 값 전달
+			response.setContentType("application/json;charset=utf-8");
 			PrintWriter out = response.getWriter();
-			out.print(jsonData);
-			out.flush();//고객(브라우저)에게 보냄
+			out.println(json);
+			out.flush();//브라우저로 내보냄
 		} catch (Exception e) {
 			e.printStackTrace();
 		}finally {
 			JDBCUtil.close(conn);
-		}					
+		}
+		
 		return null;
 	}
 

@@ -11,6 +11,25 @@
 <script src="js/common.js"></script> 
 <script>
 	$(function(){
+		$("#btn").click(function(){
+			$.ajax({
+				url:"${pageContext.request.contextPath}/checkJson.do",
+				type:"get",
+				data:{"check":$("#check").val()},
+				dateType:"json",
+				success:function(res){
+					console.log(res);
+					if(res.result=="success"){
+						var name = $("input[name='check']").val();
+						$("input[name='check']").next().css("display","inline");
+					}else{
+						var name = $("input[name='check']").val();
+						$("input[name='check']").next().next().css("display","inline");						
+					}
+					
+				}
+			})
+		})
 		$("form").submit(function(){
 			$(".error").css("display","none");
 			var result = checkInputEmpty($("input[name]"));
@@ -55,8 +74,11 @@
 			<legend>회원 가입</legend>
 			<p>
 				<label>아이디</label>
-				<input type="text" name="memberid">
+				<input type="text" name="memberid" id="check">
 				<span class="error">ID(영어,숫자 6~15)를 입력하세요.</span>
+				<input type="button" id="btn" name="check" value="중복확인">
+				<span class="error">중복됩니다.</span>
+				<span class="error">없습니다.</span>
 			</p>
 			<p>
 				<label>이름</label>
